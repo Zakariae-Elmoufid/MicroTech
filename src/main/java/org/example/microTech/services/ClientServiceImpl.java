@@ -64,13 +64,16 @@ public class ClientServiceImpl implements ClientService {
     public  ClientResponseDTO updateClient(long id , ClientUpdateDTO dto) {
         Client existingClient = clientRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
-
-        Client client = Client.builder().email(dto.email())
-                .name(dto.name())
-                .loyaltyLevel(existingClient.getLoyaltyLevel())
-                .build();
-        clientRepository.save(client);
-        return clientMapper.toDto(client);
+        if (dto.name() != null) existingClient.setName(dto.name());
+        if (dto.email() != null && !dto.email().equals(existingClient.getEmail())) {
+            boolean emailExists = clientRepository.existsByEmail(dto.email());
+            if (emailExists) {
+                throw new RuntimeException("Email is already in use");
+            }
+            existingClient.setEmail(dto.email());
+        }
+        clientRepository.save(existingClient);
+        return clientMapper.toDto(existingClient);
     }
 
 

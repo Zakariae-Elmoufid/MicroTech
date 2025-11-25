@@ -58,6 +58,7 @@ public class ClientController {
 
     @PutMapping("/{id}")
     public  ResponseEntity<ApiResponse>update(@PathVariable Long id, @RequestBody @Valid ClientUpdateDTO dto) {
+
         ClientResponseDTO client = clientService.updateClient(id, dto);
         ApiResponse response = ApiResponse.builder()
                 .message("Successfully updated clinet")

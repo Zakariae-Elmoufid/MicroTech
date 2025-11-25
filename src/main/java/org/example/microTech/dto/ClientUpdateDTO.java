@@ -10,7 +10,7 @@ public record ClientUpdateDTO(
         @Size(min = 5, max = 50 ,message = "the name of company must be greate than 5 char and less than 50 ")
         String name,
 
-        @NotBlank(message = "Email is required")
+
         @Email(message = "Email should be valid")
         String email
 ) {
