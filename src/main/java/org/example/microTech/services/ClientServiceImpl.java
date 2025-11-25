@@ -2,6 +2,7 @@ package org.example.microTech.services;
 
 import org.example.microTech.dto.ClientCreateDTO;
 import org.example.microTech.dto.ClientResponseDTO;
+import org.example.microTech.dto.ClientUpdateDTO;
 import org.example.microTech.entities.Client;
 import org.example.microTech.entities.User;
 import org.example.microTech.enums.CustomerTier;
@@ -12,6 +13,9 @@ import org.example.microTech.repositories.UserRepository;
 import org.example.microTech.utils.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ClientServiceImpl implements ClientService {
@@ -42,8 +46,38 @@ public class ClientServiceImpl implements ClientService {
                 .email(dto.email())
                 .loyaltyLevel(CustomerTier.BASIC)
                 .build();
-        userRepository.save(user);
 
         return clientMapper.toDto(clientRepository.save(client));
+    }
+
+    public List<ClientResponseDTO> getAllClients(){
+          return  clientRepository.findAll()
+                  .stream().map(clientMapper::toDto).collect(Collectors.toList());
+    }
+
+    public ClientResponseDTO getClientById(long id){
+       Client client = clientRepository.findById(id)
+               .orElseThrow(() -> new RuntimeException("Client not found"));
+       return clientMapper.toDto(client);
+    }
+
+    public  ClientResponseDTO updateClient(long id , ClientUpdateDTO dto) {
+        Client existingClient = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+
+        Client client = Client.builder().email(dto.email())
+                .name(dto.name())
+                .loyaltyLevel(existingClient.getLoyaltyLevel())
+                .build();
+        clientRepository.save(client);
+        return clientMapper.toDto(client);
+    }
+
+
+    public ClientResponseDTO deleteClient(long id) {
+        Client client = clientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Client not found"));
+        clientRepository.delete(client);
+        return clientMapper.toDto(client);
     }
 }
