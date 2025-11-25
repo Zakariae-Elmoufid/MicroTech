@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -29,9 +30,11 @@ public class Product {
     @Column(name="unit_price")
     private BigDecimal unitPrice;
 
-
-
     @Min(value = 0, message = "The value must be greater than or equal to 0")
     private Integer stock;
+
+    private boolean active;
+
+    private LocalDateTime createdAt;
 
 }
