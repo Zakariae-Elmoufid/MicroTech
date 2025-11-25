@@ -3,10 +3,7 @@ package org.example.microTech.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.microTech.enums.CustomerTier;
 
@@ -17,28 +14,28 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
+@Builder
 @Table(name = "clients")
-public class Client extends User {
+public class Client  {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "First name is required")
-    @Column(name = "first_name", nullable = false)
-    private String  firstName;
+    @NotBlank(message = " name is required")
+    private String  name;
 
-    @NotBlank(message = "Last name is required")
-    @Column(name = "last_name", nullable = false)
-    private String  lastName;
+
 
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name="loyalty_level" ,nullable = false)

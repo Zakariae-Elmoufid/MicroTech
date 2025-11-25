@@ -4,10 +4,7 @@ package org.example.microTech.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.example.microTech.enums.UserRole;
 
@@ -17,9 +14,9 @@ import org.example.microTech.enums.UserRole;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-@Inheritance(strategy = InheritanceType.JOINED)
-@SuperBuilder
+@Builder
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
