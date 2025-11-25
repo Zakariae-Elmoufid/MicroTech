@@ -77,6 +77,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
 
+
     public ClientResponseDTO deleteClient(long id) {
         Client client = clientRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Client not found"));
