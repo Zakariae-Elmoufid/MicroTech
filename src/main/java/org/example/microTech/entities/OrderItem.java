@@ -29,7 +29,7 @@ public class OrderItem {
     private BigDecimal unitPrice;
 
     @NotBlank
-    private BigDecimal quantity;
+    private Integer quantity;
 
     @DecimalMin(value = "0.0", message = "The value must be greater than or equal to 0")
     @Column(name="total_line")

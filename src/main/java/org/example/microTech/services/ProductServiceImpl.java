@@ -2,9 +2,11 @@ package org.example.microTech.services;
 
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.microTech.dto.ProductRequestDTO;
 import org.example.microTech.dto.ProductResponseDTO;
 import org.example.microTech.entities.Product;
+import org.example.microTech.enums.OrderStatus;
 import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.ClientMapper;
 import org.example.microTech.mappers.ProductMapper;
@@ -15,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
@@ -63,4 +66,19 @@ public class ProductServiceImpl implements ProductService {
         return mapper.toDTO(productRepository.save(product));
     }
 
+    @Override
+    public Product chequeQuantityAndDecrementStock(long productId, int qauntity) {
+        Product product = productRepository.findByIdAndActive(productId, true).orElseThrow(
+                () -> new ResourceNotFoundException("Product "+ productId +" not found")
+           );
+        if (product.getStock() < qauntity) {
+            return null;
+        }else{
+            product.setStock(product.getStock() - qauntity);
+            productRepository.save(product);
+            log.info("Product update stock successfully");
+           return  product;
+        }
+
+    }
 }
