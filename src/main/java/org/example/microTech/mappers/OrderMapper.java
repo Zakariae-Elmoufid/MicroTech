@@ -8,8 +8,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring" , uses = OrderItemsMapper.class)
 public interface OrderMapper {
+    @Mapping(source = "orderItems", target = "orderItem")
     OrderResponseDTO toDto(Order order);
     @Mapping(target = "promoCode", source = "promoCode", qualifiedByName = "mapPromoCode")
     Order toEntity(OrderRequestDTO dto);

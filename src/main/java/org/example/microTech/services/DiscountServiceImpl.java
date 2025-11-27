@@ -53,15 +53,14 @@ public class DiscountServiceImpl implements   DiscountService {
 
     public PromoCode validateAndGetPromo(String promoCodeString) {
         if (promoCodeString == null || promoCodeString.trim().isEmpty()) {
-            return null; // No promo code provided, return null (handled by caller)
+            return null;
         }
 
-        PromoCode promo = promoCodeRepository.findByPromoCodeAndStatus(
+        return promoCodeRepository.findByPromoCodeAndStatus(
                 promoCodeString,
                 PromoCodeStatus.ACTIVE
         ).orElseThrow(
                 () -> new ResourceNotFoundException("Promo code '" + promoCodeString + "' is invalid, expired, or not found.")
         );
-        return promo;
     }
 }

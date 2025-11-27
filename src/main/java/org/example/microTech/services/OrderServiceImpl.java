@@ -18,8 +18,10 @@ import org.example.microTech.exceptions.BusinessException;
 import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.OrderMapper;
 import org.example.microTech.repositories.ClientRepository;
+import org.example.microTech.repositories.OrderItemsRepository;
 import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.repositories.PromoCodeRepository;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,13 +42,15 @@ public class OrderServiceImpl implements OrderService{
     private final ProductService productService;
     private final ClientRepository clientRepository;
     private final DiscountService discountService;
+    private  final OrderItemsRepository orderItemsRepository;
 
     private final OrderMapper orderMapper;
 
 
+
     @Transactional
     @Override
-    public OrderResponseDTO createOrder( OrderRequestDTO dto){
+    public OrderResponseDTO createOrder(@NotNull OrderRequestDTO dto){
         Client client = clientRepository.findById(dto.clientId())
                 .orElseThrow(() ->new ResourceNotFoundException("Client not found"));
 
@@ -57,14 +61,13 @@ public class OrderServiceImpl implements OrderService{
                 .promoCode(promo)
                 .build();
 
+
         List<OrderItem> orderItems = createOrderItems(dto.items(), order);
-//        order.setOrderItems(orderItems);
 
-
-        BigDecimal subTotal = dto.items().stream().map(item -> item.unitPrice().multiply(BigDecimal.valueOf(item.qauntity())))
+        BigDecimal subTotal = dto.items().stream().map(item -> item.unitPrice().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+        System.out.println("subTotal: " + subTotal);
         order.setSubTotal(subTotal);
-
 
 
         BigDecimal totalDiscountRate = discountService.calculateTotalDiscountRate(
@@ -88,6 +91,7 @@ public class OrderServiceImpl implements OrderService{
         BigDecimal totalTTC = totalHTdiscounted.add(tvaAmount);
 
         order.setTotal(totalTTC);
+        order.setOrderItems(orderItems);
         order.setRemainingAmount(totalTTC);
         order.setOrderStatus(OrderStatus.PENDING);
         order.setOrderDate(LocalDateTime.now());
@@ -99,17 +103,19 @@ public class OrderServiceImpl implements OrderService{
         return itemDtos.stream().map(itemDto -> {
             Product product = productService.chequeQuantityAndDecrementStock(
                     itemDto.productId(),
-                    itemDto.qauntity()
+                    itemDto.quantity()
             );
 
-            return OrderItem.builder()
+             OrderItem orderItem = OrderItem.builder()
                     .product(product)
-                    .quantity(itemDto.qauntity())
+                    .quantity(itemDto.quantity())
                     .unitPrice(product.getUnitPrice())
-                    .totalLine(product.getUnitPrice().multiply(BigDecimal.valueOf(itemDto.qauntity())))
+                    .totalLine(product.getUnitPrice().multiply(BigDecimal.valueOf(itemDto.quantity())))
                     .order(order)
                     .build();
+            return orderItem;
         }).collect(Collectors.toList());
+
     }
     public void  RecalculateLoyaltyLevel(Client client){
         List<Order> orders = orderRepository.findByClientId(client.getId());

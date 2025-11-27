@@ -7,7 +7,8 @@ import java.math.BigDecimal;
 
 public record OrderItemRequestDTO(
         long productId,
-        int qauntity,
+        int quantity,
         BigDecimal unitPrice
+
 ) {
 }
