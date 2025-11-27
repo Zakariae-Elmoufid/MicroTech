@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.example.microTech.enums.PaymentMethod;
+import org.example.microTech.enums.PaymentType;
 import org.example.microTech.enums.PaymentStatus;
 
 import java.math.BigDecimal;
@@ -25,7 +25,7 @@ public class Payment {
     private Long id;
 
     @NotNull
-    private String paymentNumber;
+    private int paymentNumber;
 
     @DecimalMin(value = "0.0", message = "The value must be greater than or equal to 0")
     private BigDecimal amount;
@@ -34,7 +34,15 @@ public class Payment {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method" ,nullable = false)
-    private PaymentMethod paymentMethod;
+    private PaymentType paymentMethod;
+
+
+
+    private  String reference;
+
+   private String bank;            // optional, validated in service for CHÈQUE / VIREMENT
+   private LocalDate dueDate;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")

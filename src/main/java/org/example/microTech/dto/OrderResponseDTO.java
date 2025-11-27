@@ -6,6 +6,7 @@ import java.util.List;
 
 public record OrderResponseDTO(
         int id,
+        long clientId,
         LocalDateTime orderDate,
         BigDecimal subTotal,
         BigDecimal discount,

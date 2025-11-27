@@ -117,6 +117,14 @@ public class OrderServiceImpl implements OrderService{
         }).collect(Collectors.toList());
 
     }
+
+    public OrderResponseDTO  getOrderById(long id){
+        Order order=  orderRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("the order "+ id + " not found")
+        );
+        return orderMapper.toDto(order);
+    }
+
     public void  RecalculateLoyaltyLevel(Client client){
         List<Order> orders = orderRepository.findByClientId(client.getId());
         BigDecimal totalOrder = orders.stream().map(order -> order.getTotal()).reduce(BigDecimal.ZERO, BigDecimal::add);
