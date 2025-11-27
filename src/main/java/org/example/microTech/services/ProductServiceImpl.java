@@ -7,6 +7,7 @@ import org.example.microTech.dto.ProductRequestDTO;
 import org.example.microTech.dto.ProductResponseDTO;
 import org.example.microTech.entities.Product;
 import org.example.microTech.enums.OrderStatus;
+import org.example.microTech.exceptions.BusinessException;
 import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.ClientMapper;
 import org.example.microTech.mappers.ProductMapper;
@@ -67,18 +68,27 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product chequeQuantityAndDecrementStock(long productId, int qauntity) {
-        Product product = productRepository.findByIdAndActive(productId, true).orElseThrow(
-                () -> new ResourceNotFoundException("Product "+ productId +" not found")
-           );
-        if (product.getStock() < qauntity) {
-            return null;
-        }else{
-            product.setStock(product.getStock() - qauntity);
-            productRepository.save(product);
-            log.info("Product update stock successfully");
-           return  product;
+    public Product chequeQuantityAndDecrementStock(long productId, int quantity) {
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Product with ID " + productId + " not found.")
+                );
+
+
+        if (product.getStock() < quantity) {
+            throw new BusinessException(
+                    "Product " + productId + " ('" + product.getName() +
+                            "') does not have enough stock. Available: " +
+                            product.getStock() + ", Requested: " + quantity
+            );
         }
 
+        // 3. Decrement Stock
+        int newStock = product.getStock() - quantity;
+        product.setStock(newStock);
+
+
+        return productRepository.save(product);
     }
 }

@@ -4,6 +4,8 @@ package org.example.microTech.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -28,7 +30,8 @@ public class OrderItem {
     @Column(name="unit_price")
     private BigDecimal unitPrice;
 
-    @NotBlank
+    @NotNull
+    @Positive
     private Integer quantity;
 
     @DecimalMin(value = "0.0", message = "The value must be greater than or equal to 0")

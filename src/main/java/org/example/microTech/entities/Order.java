@@ -42,7 +42,10 @@ public class Order {
     private BigDecimal discount;
 
     @DecimalMin(value = "0.0", message = "The value must be greater than or equal to 0")
-    private BigDecimal tva;
+    private BigDecimal tvaAmount    ;
+
+    @DecimalMin(value = "0.0", message = "The value must be greater than or equal to 0")
+    private BigDecimal totalHT;
 
 
 
