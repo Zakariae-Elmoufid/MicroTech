@@ -26,7 +26,7 @@ public class Client  {
     @NotBlank(message = " name is required")
     private String  name;
 
-
+    
 
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")

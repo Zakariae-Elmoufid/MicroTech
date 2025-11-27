@@ -1,15 +1,16 @@
 package org.example.microTech.utils;
 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.mindrot.jbcrypt.BCrypt;
+
 
 public class PasswordUtil {
-    private static final PasswordEncoder encoder = new BCryptPasswordEncoder(10);
-    public static String hash(String raw) {
-        return encoder.encode(raw);}
+    public static String hash(String password) {
+        return BCrypt.hashpw(password, BCrypt.gensalt(12)); // strength = 12
+    }
 
+    // Verify password
     public static boolean verify(String raw, String hashed) {
-        return encoder.matches(raw, hashed);
+        return BCrypt.checkpw(raw, hashed);
     }
 
 }

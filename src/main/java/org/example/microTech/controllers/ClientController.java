@@ -2,6 +2,7 @@ package org.example.microTech.controllers;
 
 
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.example.microTech.dto.ApiResponse;
 
 import org.example.microTech.dto.ClientCreateDTO;
@@ -14,15 +15,15 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/admin/clients")
 public class ClientController {
 
     private final ClientService clientService;
 
-    public ClientController(ClientService clientService) {
-        this.clientService = clientService;
-    }
+
+
 
 
     @PostMapping
