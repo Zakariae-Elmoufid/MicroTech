@@ -66,6 +66,9 @@ public class Order {
     @JsonIgnore
     private List<OrderItem> orderItems;
 
+
+
+
     @ManyToOne
     @JoinColumn(name = "promo_code_id", nullable = true)
     private PromoCode promoCode;

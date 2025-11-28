@@ -3,7 +3,7 @@ package org.example.microTech.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.Transient;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -28,7 +28,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.example.microTech.enums.CustomerTier.*;
@@ -48,11 +50,16 @@ public class OrderServiceImpl implements OrderService{
 
 
 
-    @Transactional
+    @Transactional(noRollbackFor = BusinessException.class)
+
     @Override
     public OrderResponseDTO createOrder(@NotNull OrderRequestDTO dto){
         Client client = clientRepository.findById(dto.clientId())
                 .orElseThrow(() ->new ResourceNotFoundException("Client not found"));
+
+        Map<Long, Product> productMap = productService.getProductsByIds(
+                dto.items().stream().map(OrderItemRequestDTO::productId).toList()
+        );
 
         PromoCode promo = discountService.validateAndGetPromo(dto.promoCode());
 
@@ -60,9 +67,17 @@ public class OrderServiceImpl implements OrderService{
                 .client(client)
                 .promoCode(promo)
                 .build();
+        List<Product>  insufficientProducts  = getInsufficientProducts(dto.items(), productMap);
+        boolean insufficient = !insufficientProducts.isEmpty();
+
+        if (insufficient) {
+            order.setOrderStatus(OrderStatus.REJECTED);
+        } else {
+            order.setOrderStatus(OrderStatus.PENDING);
+        }
 
 
-        List<OrderItem> orderItems = createOrderItems(dto.items(), order);
+        List<OrderItem> orderItems = createOrderItems(dto.items(), order,productMap,insufficient);
 
         BigDecimal subTotal = dto.items().stream().map(item -> item.unitPrice().multiply(BigDecimal.valueOf(item.quantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -93,29 +108,56 @@ public class OrderServiceImpl implements OrderService{
         order.setTotal(totalTTC);
         order.setOrderItems(orderItems);
         order.setRemainingAmount(totalTTC);
-        order.setOrderStatus(OrderStatus.PENDING);
         order.setOrderDate(LocalDateTime.now());
         orderRepository.save(order);
+
+        if (insufficient) {
+            String details = insufficientProducts.stream()
+                    .map(p -> p.getName() + " (stock=" + p.getStock() + ")")
+                    .reduce((a,b) -> a + ", " + b)
+                    .orElse("Unknown products");
+            throw new BusinessException("Order rejected: insufficient stock for one or more items." + details);
+        }
+
         return orderMapper.toDto(order);
     }
 
-    private List<OrderItem> createOrderItems(List<OrderItemRequestDTO> itemDtos, Order order) {
-        return itemDtos.stream().map(itemDto -> {
-            Product product = productService.chequeQuantityAndDecrementStock(
-                    itemDto.productId(),
-                    itemDto.quantity()
-            );
+    private List<Product> getInsufficientProducts(List<OrderItemRequestDTO> items, Map<Long, Product> productMap) {
+        List<Product> insufficient = new ArrayList<>();
 
-             OrderItem orderItem = OrderItem.builder()
-                    .product(product)
-                    .quantity(itemDto.quantity())
-                    .unitPrice(product.getUnitPrice())
-                    .totalLine(product.getUnitPrice().multiply(BigDecimal.valueOf(itemDto.quantity())))
-                    .order(order)
-                    .build();
-            return orderItem;
-        }).collect(Collectors.toList());
+        for (OrderItemRequestDTO dto : items) {
+            Product p = productMap.get(dto.productId());
+            if (p.getStock() < dto.quantity()) {
+                insufficient.add(p);
+            }
+        }
+        return insufficient;
+    }
 
+
+    private List<OrderItem> createOrderItems(List<OrderItemRequestDTO> itemDtos, Order order ,Map<Long, Product> productMap,boolean insufficient ) {
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (OrderItemRequestDTO itemDTO : itemDtos) {
+            Product product = productMap.get(itemDTO.productId());
+
+            boolean insufficientForThisItem = product.getStock() < itemDTO.quantity();
+
+            OrderItem item = new OrderItem();
+            item.setOrder(order);
+            item.setProduct(product);
+            item.setQuantity(itemDTO.quantity());
+            item.setUnitPrice(product.getUnitPrice());
+            item.setTotalLine(product.getUnitPrice().multiply(BigDecimal.valueOf(itemDTO.quantity())));
+            item.setInsufficientStock(insufficientForThisItem);
+
+            orderItems.add(item);
+
+            if (!insufficient && !insufficientForThisItem) {
+                product.setStock(product.getStock() - itemDTO.quantity());
+            }
+        }
+        return orderItems;
     }
 
     public void decrementRemaining(long orderId , BigDecimal amountPaid){
@@ -143,8 +185,9 @@ public class OrderServiceImpl implements OrderService{
                 () -> new ResourceNotFoundException("the order "+ id + " not found")
         );
 
+
         if(order.getOrderStatus().equals(OrderStatus.CONFIRMED)){
-            throw new BusinessException("the order "+ id + " is already in c");
+            throw new BusinessException("the order "+ id + " is already in complete");
         }
 
         if(order.getRemainingAmount().compareTo(new BigDecimal("0.00")) > 0){
@@ -153,6 +196,7 @@ public class OrderServiceImpl implements OrderService{
 
         order.setOrderStatus(OrderStatus.CONFIRMED);
         orderRepository.save(order);
+
     }
 
 

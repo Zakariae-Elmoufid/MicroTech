@@ -44,7 +44,8 @@ public class OrderItem {
     @JoinColumn(name = "order_id")
     private Order order;
 
-
+    @Column(name="insufficient_stock" , nullable = false)
+    private boolean insufficientStock = false;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
