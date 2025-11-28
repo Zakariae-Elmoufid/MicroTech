@@ -70,5 +70,8 @@ public class Order {
     @JoinColumn(name = "promo_code_id", nullable = true)
     private PromoCode promoCode;
 
+    @OneToMany(mappedBy = "order")
+    private List<Payment> payments;
+
 
 }

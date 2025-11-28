@@ -1,6 +1,6 @@
 package org.example.microTech.enums;
 
-public enum PaymentMethod {
+public enum PaymentType {
     CASH,
     CHECK,
     BANK_TRANSFER,

@@ -117,6 +117,29 @@ public class OrderServiceImpl implements OrderService{
         }).collect(Collectors.toList());
 
     }
+
+    public void decrementRemaining(long orderId , BigDecimal amountPaid){
+        Order order =  orderRepository.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException("the order "+ orderId + " not found")
+        );
+
+        if(amountPaid.compareTo(order.getRemainingAmount()) > 0){
+            throw new BusinessException("amount paid is greater  than remaining amount");
+        }
+        BigDecimal newRemainingAmount = order.getRemainingAmount().subtract(amountPaid);
+        order.setRemainingAmount(newRemainingAmount);
+    }
+
+
+    public OrderResponseDTO  getOrderById(long id){
+        Order order=  orderRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("the order "+ id + " not found")
+        );
+        return orderMapper.toDto(order);
+    }
+
+
+
     public void  RecalculateLoyaltyLevel(Client client){
         List<Order> orders = orderRepository.findByClientId(client.getId());
         BigDecimal totalOrder = orders.stream().map(order -> order.getTotal()).reduce(BigDecimal.ZERO, BigDecimal::add);
