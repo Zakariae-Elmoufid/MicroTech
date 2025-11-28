@@ -138,6 +138,23 @@ public class OrderServiceImpl implements OrderService{
         return orderMapper.toDto(order);
     }
 
+    public  void  confirmOrder(long id){
+        Order order=  orderRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("the order "+ id + " not found")
+        );
+
+        if(order.getOrderStatus().equals(OrderStatus.CONFIRMED)){
+            throw new BusinessException("the order "+ id + " is already in c");
+        }
+
+        if(order.getRemainingAmount().compareTo(new BigDecimal("0.00")) > 0){
+            throw new BusinessException("remaining amount  is greater  than 0 , it's not complete pay ");
+        }
+
+        order.setOrderStatus(OrderStatus.CONFIRMED);
+        orderRepository.save(order);
+    }
+
 
 
     public void  RecalculateLoyaltyLevel(Client client){
