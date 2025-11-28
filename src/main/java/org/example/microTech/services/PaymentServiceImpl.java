@@ -9,7 +9,9 @@ import org.example.microTech.entities.Order;
 import org.example.microTech.entities.Payment;
 import org.example.microTech.enums.PaymentStatus;
 import org.example.microTech.enums.PaymentType;
+import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.PaymentMapper;
+import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.repositories.PaymentRepository;
 import org.springframework.stereotype.Service;
 
@@ -24,38 +26,44 @@ import java.time.format.DateTimeFormatter;
 public class PaymentServiceImpl implements  PaymentService {
 
     private PaymentRepository paymentRepository;
+    private OrderRepository orderRepository;
     private OrderService orderService;
     private PaymentMapper paymentMapper;
 
 
-    public PaymentResponseDTO createPayment(PaymentRequestDTO request) {
-        OrderResponseDTO order = orderService.getOrderById(request.orderId());
-        int lastNumber = paymentRepository.findTopByOrderIdOrderByPaymentNumberDesc(request.orderId())
+    public PaymentResponseDTO createPayment(long orderId,PaymentRequestDTO request) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new ResourceNotFoundException("the order "+ orderId + " not found")
+        );
+
+
+        int lastNumber = paymentRepository.findTopByOrderIdOrderByPaymentNumberDesc(orderId)
                 .map(Payment::getPaymentNumber)
                 .orElse(0);
         int newNumberPayment = lastNumber + 1;
 
         boolean isNotAchievedLimit = false;
         if(request.type().equals(PaymentType.CASH)){
-            isNotAchievedLimit = checkLimitCashPaymentsForDay(order.clientId(),request.amount());
+            isNotAchievedLimit = checkLimitCashPaymentsForDay(order.getClient().getId(),request.amount());
         }
-        String reference =  generateReference(request.type(),request.bank(),newNumberPayment )
-
+        String reference =  generateReference(request.type(),request.bank(),newNumberPayment );
 
         Payment payment = Payment.builder()
                 .paymentDate(LocalDateTime.now())
+                .order(order)
                 .paymentNumber(newNumberPayment)
                 .amount(request.amount())
                 .reference(reference)
                 .bank(request.bank())
                 .dueDate(request.dueDate())
-                .paymentMethod(request.type())
+                .paymentType(request.type())
                 .paymentStatus(PaymentStatus.ON_HOLD)
                 .build();
+        orderService.decrementRemaining(orderId , request.amount() );
         if(request.type().equals(PaymentType.CASH)){
             payment.setPaymentStatus(PaymentStatus.CASHED);
         }
-        return  PaymentResponseDTO(paymentRepository.save(payment));
+        return  paymentMapper.toDto(paymentRepository.save(payment));
     }
 
     private boolean checkLimitCashPaymentsForDay(long clientId,BigDecimal amount){
@@ -69,8 +77,7 @@ public class PaymentServiceImpl implements  PaymentService {
                 endOfDay,
                 clientId
         );
-        BigDecimal newPaymentAmount = amount;
-        if(totalToday.add(newPaymentAmount).compareTo(new BigDecimal("20000")) > 0){
+        if(totalToday.add(amount).compareTo(new BigDecimal("20000")) > 0){
             throw new IllegalArgumentException("the client "+ clientId +"can't payer more than 20,000 DH in Cash per day.");
         }
         return true;
@@ -88,7 +95,7 @@ public class PaymentServiceImpl implements  PaymentService {
 
 
         if(type == PaymentType.CASH){
-            return String.format("%s-%s-%03d", prefix, datePart,seq;
+            return String.format("%s-%s-%03d", prefix, datePart,seq);
         } else {
             return String.format("%s-%s-%03d", prefix, bank.toUpperCase(), seq);
         }

@@ -17,7 +17,7 @@ public interface PaymentRepository extends JpaRepository<Payment,Long> {
     @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p " +
             "WHERE p.paymentType = :type " +
             "AND p.paymentDate BETWEEN :startOfDay AND :endOfDay " +
-            "AND p.client.id = :clientId")
+            "AND p.order.client.id = :clientId")
     BigDecimal sumCashPaymentsForDay(@Param("type") PaymentType type,
                                      @Param("startOfDay") LocalDateTime startOfDay,
                                      @Param("endOfDay") LocalDateTime endOfDay,
