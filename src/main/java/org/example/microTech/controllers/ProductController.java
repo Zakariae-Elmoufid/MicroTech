@@ -3,9 +3,7 @@ package org.example.microTech.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.example.microTech.dto.ApiResponse;
-import org.example.microTech.dto.ProductRequestDTO;
-import org.example.microTech.dto.ProductResponseDTO;
+import org.example.microTech.dto.*;
 import org.example.microTech.repositories.ProductRepository;
 import org.example.microTech.services.ProductService;
 import org.springframework.http.HttpStatus;
@@ -70,6 +68,18 @@ public class ProductController {
                 .build();
 
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+        public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id) {
+        ProductDeleteResponseDTO client = productService.deleteProduct(id);
+        ApiResponse response = ApiResponse.builder()
+                .message("Supplier deleted successfully!")
+                .data(client)
+                .status(HttpStatus.OK.value())
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
 

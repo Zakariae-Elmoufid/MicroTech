@@ -3,6 +3,7 @@ package org.example.microTech.services;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.microTech.dto.ProductDeleteResponseDTO;
 import org.example.microTech.dto.ProductRequestDTO;
 import org.example.microTech.dto.ProductResponseDTO;
 import org.example.microTech.entities.Product;
@@ -11,6 +12,7 @@ import org.example.microTech.exceptions.BusinessException;
 import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.ClientMapper;
 import org.example.microTech.mappers.ProductMapper;
+import org.example.microTech.repositories.OrderItemsRepository;
 import org.example.microTech.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,7 @@ import java.util.stream.Collectors;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final OrderItemsRepository orderItemRepository;
 
     private final ProductMapper mapper;
 
@@ -73,6 +76,25 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepository.findAllById(productIds);
         return products.stream()
                 .collect(Collectors.toMap(Product::getId, product -> product));
+    }
+
+
+    public ProductDeleteResponseDTO deleteProduct(long id) {
+        long pendingOrders = orderItemRepository.countPendingOrdersByProductId(id);
+        System.out.println("pendingOrders: " + pendingOrders);
+        Product product = productRepository.findById(id).orElseThrow(
+                () -> new RuntimeException("Product not found")
+        );
+        if(pendingOrders > 0) {
+            product.setActive(false);
+            productRepository.save(product);
+            return new ProductDeleteResponseDTO(product.getName(), "SOFT_DELETED because there are "+ pendingOrders +"  pending orders");
+
+        }else{
+            productRepository.delete(product);
+            return new ProductDeleteResponseDTO(product.getName(), "HARD_DELETED");
+
+        }
     }
 
 
