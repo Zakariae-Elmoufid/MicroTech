@@ -27,16 +27,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(StockException.class)
-    public ResponseEntity<Map<String, Object>> handleStockExceptions(StockException ex,HttpServletRequest req) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                "error", "stock is not enough",
-                "message", ex.getMessage(),
-                "timestamp", LocalDateTime.now(),
-                "status", HttpStatus.NOT_FOUND,
-                "path", req.getRequestURI()
-        ));
-    }
+
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {

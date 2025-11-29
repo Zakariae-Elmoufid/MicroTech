@@ -51,7 +51,6 @@ public class OrderServiceImpl implements OrderService{
 
 
     @Transactional(noRollbackFor = BusinessException.class)
-
     @Override
     public OrderResponseDTO createOrder(@NotNull OrderRequestDTO dto){
         Client client = clientRepository.findById(dto.clientId())
