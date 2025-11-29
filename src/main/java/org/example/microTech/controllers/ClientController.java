@@ -3,11 +3,8 @@ package org.example.microTech.controllers;
 
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.example.microTech.dto.ApiResponse;
+import org.example.microTech.dto.*;
 
-import org.example.microTech.dto.ClientCreateDTO;
-import org.example.microTech.dto.ClientResponseDTO;
-import org.example.microTech.dto.ClientUpdateDTO;
 import org.example.microTech.services.ClientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +14,10 @@ import java.util.List;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/admin/clients")
+@RequestMapping("/api/clients")
 public class ClientController {
 
     private final ClientService clientService;
-
-
-
 
 
     @PostMapping
@@ -80,6 +74,8 @@ public class ClientController {
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
+
+
 
 
 }

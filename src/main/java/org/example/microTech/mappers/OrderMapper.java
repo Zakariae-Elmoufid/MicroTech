@@ -1,5 +1,6 @@
 package org.example.microTech.mappers;
 
+import org.example.microTech.dto.OrderHistoryDTO;
 import org.example.microTech.dto.OrderRequestDTO;
 import org.example.microTech.dto.OrderResponseDTO;
 import org.example.microTech.entities.Order;
@@ -14,6 +15,8 @@ public interface OrderMapper {
     OrderResponseDTO toDto(Order order);
     @Mapping(target = "promoCode", source = "promoCode", qualifiedByName = "mapPromoCode")
     Order toEntity(OrderRequestDTO dto);
+    OrderHistoryDTO toHistoryDTO(Order order);
+
     @Named("mapPromoCode")
     default PromoCode mapPromoCode(String code) {
         if (code == null) return null;

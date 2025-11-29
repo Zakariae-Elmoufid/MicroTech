@@ -1,5 +1,6 @@
 package org.example.microTech.services;
 
+import org.example.microTech.dto.ClientOrderStatsDTO;
 import org.example.microTech.dto.OrderRequestDTO;
 import org.example.microTech.dto.OrderResponseDTO;
 
