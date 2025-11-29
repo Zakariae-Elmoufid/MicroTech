@@ -1,19 +1,14 @@
 package org.example.microTech.services;
 
 
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.Transient;
+
 import org.springframework.transaction.annotation.Transactional;
-import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.example.microTech.dto.OrderItemRequestDTO;
 import org.example.microTech.dto.OrderRequestDTO;
 import org.example.microTech.dto.OrderResponseDTO;
 import org.example.microTech.entities.*;
-import org.example.microTech.enums.CustomerTier;
 import org.example.microTech.enums.OrderStatus;
-import org.example.microTech.enums.PromoCodeStatus;
 import org.example.microTech.exceptions.BusinessException;
 import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.OrderMapper;
@@ -22,9 +17,7 @@ import org.example.microTech.repositories.OrderItemsRepository;
 import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.repositories.PromoCodeRepository;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -201,14 +194,13 @@ public class OrderServiceImpl implements OrderService{
 
 
     public void  RecalculateLoyaltyLevel(Client client){
-        List<Order> orders = orderRepository.findByClientId(client.getId());
-        BigDecimal totalOrder = orders.stream().map(order -> order.getTotal()).reduce(BigDecimal.ZERO, BigDecimal::add);
+        List<Order> orders = orderRepository.findByClientIdAndOrderStatus(client.getId(),OrderStatus.CONFIRMED);
+        BigDecimal subTotal = orders.stream().map(order -> order.getSubTotal()).reduce(BigDecimal.ZERO, BigDecimal::add);
         int orderSize = orders.size();
 
 
-        if (orderSize >= 20 || totalOrder.compareTo(new BigDecimal("15000.00")) >= 0) {
+        if (orderSize >= 20 || subTotal.compareTo(new BigDecimal("15000.00")) >= 0) {
             client.setLoyaltyLevel(PLATINUM);
-
         } else if (orderSize >= 10 || totalOrder.compareTo(new BigDecimal("5000.00")) >= 0) {
             client.setLoyaltyLevel(GOLD);
 
