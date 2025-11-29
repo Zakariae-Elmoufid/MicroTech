@@ -71,7 +71,7 @@ public class OrderServiceImpl implements OrderService{
 
         List<OrderItem> orderItems = createOrderItems(dto.items(), order,productMap,insufficient);
 
-        BigDecimal subTotal = dto.items().stream().map(item -> item.unitPrice().multiply(BigDecimal.valueOf(item.quantity())))
+        BigDecimal subTotal =orderItems.stream().map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         System.out.println("subTotal: " + subTotal);
         order.setSubTotal(subTotal);
@@ -172,28 +172,31 @@ public class OrderServiceImpl implements OrderService{
         return orderMapper.toDto(order);
     }
 
-    public  void  confirmOrder(long id){
-        Order order=  orderRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("the order "+ id + " not found")
+    @Transactional
+    public void confirmOrder(long id) {
+
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Order " + id + " not found")
         );
 
-
-        if(order.getOrderStatus().equals(OrderStatus.CONFIRMED)){
-            throw new BusinessException("the order "+ id + " is already in complete");
+        if (order.getOrderStatus() == OrderStatus.CONFIRMED) {
+            throw new BusinessException("Order " + id + " is already confirmed");
         }
 
-        if(order.getRemainingAmount().compareTo(new BigDecimal("0.00")) > 0){
-            throw new BusinessException("remaining amount  is greater  than 0 , it's not complete pay ");
+        if (order.getRemainingAmount().compareTo(BigDecimal.ZERO) > 0) {
+            throw new BusinessException("Remaining amount is greater than 0. The order is not fully paid.");
         }
 
         order.setOrderStatus(OrderStatus.CONFIRMED);
         orderRepository.save(order);
 
+        recalculateLoyaltyLevel(order.getClient());
+
     }
 
 
 
-    public void  RecalculateLoyaltyLevel(Client client){
+    public void   recalculateLoyaltyLevel(Client client){
         List<Order> orders = orderRepository.findByClientIdAndOrderStatus(client.getId(),OrderStatus.CONFIRMED);
         BigDecimal subTotal = orders.stream().map(order -> order.getSubTotal()).reduce(BigDecimal.ZERO, BigDecimal::add);
         int orderSize = orders.size();
@@ -201,10 +204,10 @@ public class OrderServiceImpl implements OrderService{
 
         if (orderSize >= 20 || subTotal.compareTo(new BigDecimal("15000.00")) >= 0) {
             client.setLoyaltyLevel(PLATINUM);
-        } else if (orderSize >= 10 || totalOrder.compareTo(new BigDecimal("5000.00")) >= 0) {
+        } else if (orderSize >= 10 || subTotal.compareTo(new BigDecimal("5000.00")) >= 0) {
             client.setLoyaltyLevel(GOLD);
 
-        } else if (orderSize >= 3 || totalOrder.compareTo(new BigDecimal("1000.00")) >= 0) {
+        } else if (orderSize >= 3 || subTotal.compareTo(new BigDecimal("1000.00")) >= 0) {
             client.setLoyaltyLevel(SILVER);
 
         } else {
