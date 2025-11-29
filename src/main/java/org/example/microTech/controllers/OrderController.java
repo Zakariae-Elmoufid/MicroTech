@@ -9,10 +9,7 @@ import org.example.microTech.dto.OrderResponseDTO;
 import org.example.microTech.services.OrderService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
 @RestController
@@ -30,5 +27,17 @@ public class OrderController {
                 .status(HttpStatus.CREATED.value()).build();
         return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/{id}/confirm")
+    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable long id){
+        orderService.confirmOrder(id);
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Order confirmed successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+
 
 }

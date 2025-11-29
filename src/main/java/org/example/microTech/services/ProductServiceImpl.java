@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -67,28 +69,11 @@ public class ProductServiceImpl implements ProductService {
         return mapper.toDTO(productRepository.save(product));
     }
 
-    @Override
-    public Product chequeQuantityAndDecrementStock(long productId, int quantity) {
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Product with ID " + productId + " not found.")
-                );
-
-
-        if (product.getStock() < quantity) {
-            throw new BusinessException(
-                    "Product " + productId + " ('" + product.getName() +
-                            "') does not have enough stock. Available: " +
-                            product.getStock() + ", Requested: " + quantity
-            );
-        }
-
-        // 3. Decrement Stock
-        int newStock = product.getStock() - quantity;
-        product.setStock(newStock);
-
-
-        return productRepository.save(product);
+    public Map<Long, Product>  getProductsByIds(List<Long> productIds){
+        List<Product> products = productRepository.findAllById(productIds);
+        return products.stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
     }
+
+
 }
