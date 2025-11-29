@@ -3,6 +3,10 @@ package org.example.microTech.services;
 
 
 import org.example.microTech.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.microTech.entities.*;
@@ -211,6 +215,13 @@ public class OrderServiceImpl implements OrderService{
             client.setLoyaltyLevel(BASIC);
         }
         clientRepository.save(client);
+    }
+
+    public Page<OrderHistoryDTO> getOrders(int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
+
+        return orderRepository.findAllOrdersAdmin(pageable)
+                .map(orderMapper::toHistoryDTO);
     }
 
 
