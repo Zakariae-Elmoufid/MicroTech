@@ -1,6 +1,7 @@
 package org.example.microTech.repositories;
 
 import org.example.microTech.entities.Order;
+import org.example.microTech.entities.PromoCode;
 import org.example.microTech.enums.OrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,6 +15,14 @@ import java.util.List;
 
 public interface OrderRepository  extends JpaRepository<Order,Long> {
     List<Order> findByClientIdAndOrderStatus(Long clientId, OrderStatus orderStatus);
+
+
+    @Query("""
+       SELECT COUNT(o) FROM Order o
+       WHERE o.client.id = :clientId AND o.promoCode.id = :promoId
+       """)
+    int countClientPromoUsage(Long clientId, Long promoId);
+
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.client.id = :clientId AND o.orderStatus = 'PENDING'")
     int countClientOrdersPending(Long clientId);
