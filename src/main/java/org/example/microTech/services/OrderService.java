@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public interface OrderService {
    public OrderResponseDTO createOrder(OrderRequestDTO dto);
    public  void  confirmOrder(long id);
+   public void  cancelOrder(long id);
    public OrderResponseDTO  getOrderById(long id);
    public void decrementRemaining(long orderId , BigDecimal amountPaid);
 

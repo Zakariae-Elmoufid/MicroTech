@@ -39,6 +39,16 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable long id){
+        orderService.cancelOrder(id);
+        ApiResponse response = ApiResponse.builder()
+                .status(HttpStatus.OK.value())
+                .message("Order canceled successfully")
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping
     public Page<OrderHistoryDTO> getOrders(
             @RequestParam(defaultValue = "0") int page,
@@ -46,7 +56,6 @@ public class OrderController {
     ) {
         return orderService.getOrders(page, size);
     }
-
 
 
 

@@ -226,6 +226,17 @@ public class OrderServiceImpl implements OrderService{
                 .map(orderMapper::toHistoryDTO);
     }
 
+    public void cancelOrder(long id) {
+        Order order = orderRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Order " + id + " not found")
+        );
+
+        if(order.getOrderStatus() != OrderStatus.PENDING) {
+            throw new BusinessException("Order " + id + " is not pending \n satatus :" +order.getOrderStatus() );
+        }
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
 
 
 
