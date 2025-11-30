@@ -1,11 +1,15 @@
 package org.example.microTech.dto;
 
+import org.example.microTech.enums.OrderStatus;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public record OrderResponseDTO(
-        int id,
+        long id,
+        Long clientId,
+        OrderStatus orderStatus,
         LocalDateTime orderDate,
         BigDecimal subTotal,
         BigDecimal discount,
