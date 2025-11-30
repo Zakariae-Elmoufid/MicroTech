@@ -21,7 +21,7 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
-    @PostMapping("/orders/{orderId}")
+    @PostMapping("/order/{orderId}")
     public ResponseEntity<ApiResponse> createPayment(
             @PathVariable Long orderId,
             @Valid @RequestBody PaymentRequestDTO dto
