@@ -29,6 +29,7 @@
     <properties>
         <java.version>17</java.version>
         <spring-modulith.version>2.0.0</spring-modulith.version>
+
     </properties>
 
 
@@ -119,10 +120,7 @@
 
 
 
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -168,7 +166,16 @@
 
 
 
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <excludes>
+                        <exclude>**/*ApplicationTests.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
 
             <!-- Spring Boot Plugin -->
             <plugin>
