@@ -51,16 +51,4 @@ public class DiscountServiceImpl implements   DiscountService {
        return BigDecimal.ZERO;
     }
 
-    public PromoCode validateAndGetPromo(String promoCodeString) {
-        if (promoCodeString == null || promoCodeString.trim().isEmpty()) {
-            return null;
-        }
-
-        return promoCodeRepository.findByPromoCodeAndStatus(
-                promoCodeString,
-                PromoCodeStatus.ACTIVE
-        ).orElseThrow(
-                () -> new ResourceNotFoundException("Promo code '" + promoCodeString + "' is invalid, expired, or not found.")
-        );
-    }
 }

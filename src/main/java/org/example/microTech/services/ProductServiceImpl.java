@@ -74,6 +74,9 @@ public class ProductServiceImpl implements ProductService {
 
     public Map<Long, Product>  getProductsByIds(List<Long> productIds){
         List<Product> products = productRepository.findAllById(productIds);
+        if(products.isEmpty()){
+            throw new ResourceNotFoundException("Product not found");
+        }
         return products.stream()
                 .collect(Collectors.toMap(Product::getId, product -> product));
     }

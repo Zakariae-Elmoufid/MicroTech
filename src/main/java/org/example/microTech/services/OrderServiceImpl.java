@@ -38,6 +38,7 @@ public class OrderServiceImpl implements OrderService{
     private final ProductService productService;
     private final ClientRepository clientRepository;
     private final DiscountService discountService;
+    private final PromoCodeService promoCodeService;
     private  final OrderItemsRepository orderItemsRepository;
 
     private final OrderMapper orderMapper;
@@ -54,8 +55,9 @@ public class OrderServiceImpl implements OrderService{
                 dto.items().stream().map(OrderItemRequestDTO::productId).toList()
         );
 
-        PromoCode promo = discountService.validateAndGetPromo(dto.promoCode());
+        PromoCode promo = promoCodeService.validatePromoForClient(dto.clientId(), dto.promoCode());
 
+        System.out.println("Code Promo : "+ promo);
         Order order = Order.builder()
                 .client(client)
                 .promoCode(promo)

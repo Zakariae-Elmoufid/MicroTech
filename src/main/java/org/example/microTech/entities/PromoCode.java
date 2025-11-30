@@ -37,8 +37,10 @@ public class PromoCode {
     @Column(name = "end_date")
     private LocalDateTime EndDate;
 
-
-    private  Integer  maxUses;
+    @Column(name = "max_uses")
+    private  int  maxUses;
+    @Column(name = "current_uses", columnDefinition = "INT DEFAULT 0")
+    private int currentUses;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "promo_code_status")
