@@ -2,11 +2,13 @@ package org.example.microTech.services;
 
 
 
+import org.example.microTech.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.AllArgsConstructor;
-import org.example.microTech.dto.OrderItemRequestDTO;
-import org.example.microTech.dto.OrderRequestDTO;
-import org.example.microTech.dto.OrderResponseDTO;
 import org.example.microTech.entities.*;
 import org.example.microTech.enums.OrderStatus;
 import org.example.microTech.exceptions.BusinessException;
@@ -24,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.example.microTech.enums.CustomerTier.*;
 
@@ -215,6 +216,14 @@ public class OrderServiceImpl implements OrderService{
         }
         clientRepository.save(client);
     }
+
+    public Page<OrderHistoryDTO> getOrders(int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by("orderDate").descending());
+
+        return orderRepository.findAllOrdersAdmin(pageable)
+                .map(orderMapper::toHistoryDTO);
+    }
+
 
 
 

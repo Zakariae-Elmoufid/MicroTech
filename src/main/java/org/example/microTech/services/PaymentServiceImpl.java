@@ -13,6 +13,10 @@ import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.PaymentMapper;
 import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.repositories.PaymentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -20,6 +24,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -63,7 +68,7 @@ public class PaymentServiceImpl implements  PaymentService {
         if(request.type().equals(PaymentType.CASH)){
             payment.setPaymentStatus(PaymentStatus.CASHED);
         }
-        return  paymentMapper.toDto(paymentRepository.save(payment));
+        return  paymentMapper.toDTO(paymentRepository.save(payment));
     }
 
     private boolean checkLimitCashPaymentsForDay(long clientId,BigDecimal amount){
@@ -99,6 +104,31 @@ public class PaymentServiceImpl implements  PaymentService {
         } else {
             return String.format("%s-%s-%03d", prefix, bank.toUpperCase(), seq);
         }
+    }
+
+
+    public PaymentResponseDTO getPaymentById(Long id) {
+        Payment payment = paymentRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
+        return paymentMapper.toDTO(payment);
+    }
+
+    public List<PaymentResponseDTO> getPaymentsByOrderId(Long orderId) {
+        List<Payment> payments = paymentRepository.findByOrderId(orderId);
+
+        if (payments.isEmpty()) {
+            throw new ResourceNotFoundException("No payments found for order id: " + orderId);
+        }
+
+        return payments.stream()
+                .map(paymentMapper::toDTO)
+                .toList();
+    }
+
+    public Page<PaymentResponseDTO> getAllPayments(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("paymentDate").descending());
+        return paymentRepository.findAllPayments(pageable)
+                .map(paymentMapper::toDTO);
     }
 
 
