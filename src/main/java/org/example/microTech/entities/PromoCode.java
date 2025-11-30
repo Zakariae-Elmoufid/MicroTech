@@ -29,6 +29,7 @@ public class PromoCode {
             regexp = "PROMO-[A-Z0-9]{4}",
             message = "Promo code must follow the format PROMO-XXXX (4 uppercase letters or digits)"
     )
+    @Column(name = "promo_code" , nullable = false, unique = true)
     private String promoCode;
     @DecimalMin(value = "0.0", message = "Discount must be positive")
     private BigDecimal discount;

@@ -31,11 +31,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest req) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
                 "error", "Resource Not Found",
                 "message", ex.getMessage(),
                 "timestamp", LocalDateTime.now(),
-                "status", HttpStatus.BAD_REQUEST,
+                "status", HttpStatus.NOT_FOUND.value(),
                 "path", req.getRequestURI()
         ));
     }
@@ -48,6 +48,17 @@ public class GlobalExceptionHandler {
         body.put("message", ex.getMessage());
         body.put("path", req.getRequestURI());
         return new ResponseEntity<>(body, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<Map<String, Object>> handleBadRequest(BadRequestException ex) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", "Bad Request");
+        body.put("message", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)

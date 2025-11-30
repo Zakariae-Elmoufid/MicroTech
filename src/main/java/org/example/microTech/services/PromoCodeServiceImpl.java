@@ -3,10 +3,14 @@ package org.example.microTech.services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.apache.coyote.BadRequestException;
+import org.example.microTech.dto.PromoCodeRequestDTO;
+import org.example.microTech.dto.PromoCodeResponseDTO;
 import org.example.microTech.entities.PromoCode;
 import org.example.microTech.enums.PromoCodeStatus;
 import org.example.microTech.exceptions.BusinessException;
 import org.example.microTech.exceptions.ResourceNotFoundException;
+import org.example.microTech.mappers.PromoCodeMapper;
 import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.repositories.PromoCodeRepository;
 import org.springframework.stereotype.Service;
@@ -18,6 +22,27 @@ import java.time.LocalDateTime;
 public class PromoCodeServiceImpl implements  PromoCodeService {
     private final PromoCodeRepository promoCodeRepository;
     private final OrderRepository orderRepository;
+    private final PromoCodeMapper promoCodeMapper;
+
+
+
+    public PromoCodeResponseDTO createPromo(PromoCodeRequestDTO request){
+        if (request.startDate().isAfter(request.endDate())) {
+             new BadRequestException("startDate must be before endDate");
+        }
+        PromoCode promoCode = PromoCode.builder()
+                .promoCode(request.promoCode())
+                .discount(request.discount())
+                .maxUses(request.maxUses())
+                .StartDate(request.startDate())
+                .EndDate(request.endDate())
+                .status( PromoCodeStatus.ACTIVE)
+                .created(LocalDateTime.now())
+                .build();
+        return promoCodeMapper.toDTO(promoCodeRepository.save(promoCode));
+    }
+
+
 
 
     public PromoCode validatePromoForClient(Long clientId, String code) {
