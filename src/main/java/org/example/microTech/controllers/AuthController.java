@@ -6,10 +6,7 @@ import org.example.microTech.entities.User;
 import org.example.microTech.repositories.UserRepository;
 import org.example.microTech.services.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,9 +27,9 @@ public class AuthController {
         return ResponseEntity.ok("Login successful");
     }
 
-    @PostMapping("/logout")
+    @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpSession session) {
-        session.invalidate(); // remove session
+        session.invalidate();
         return ResponseEntity.ok("Logout successful");
     }
 }

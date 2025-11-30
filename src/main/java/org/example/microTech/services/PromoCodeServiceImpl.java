@@ -47,8 +47,8 @@ public class PromoCodeServiceImpl implements  PromoCodeService {
 
     public PromoCode validatePromoForClient(Long clientId, String code) {
 
-        PromoCode promo = promoCodeRepository.findByPromoCode(code)
-                .orElseThrow(() -> new ResourceNotFoundException("Promo code not found"));
+        PromoCode promo = promoCodeRepository.findByPromoCode(code);
+        if (promo == null) return null;
 
         if (promo.getStatus() != PromoCodeStatus.ACTIVE) {
             throw new BusinessException("Promo code is not active");

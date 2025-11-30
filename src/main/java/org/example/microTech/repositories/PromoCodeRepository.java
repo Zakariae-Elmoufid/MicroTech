@@ -11,6 +11,6 @@ import java.util.Optional;
 import static org.example.microTech.enums.PromoCodeStatus.ACTIVE;
 
 public interface PromoCodeRepository extends CrudRepository<PromoCode,Long> {
-    public Optional<PromoCode>   findByPromoCode(String promoCode);
+    public PromoCode   findByPromoCode(String promoCode);
 
 }

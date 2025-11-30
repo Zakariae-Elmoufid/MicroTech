@@ -57,7 +57,6 @@ public class OrderServiceImpl implements OrderService{
 
         PromoCode promo = promoCodeService.validatePromoForClient(dto.clientId(), dto.promoCode());
 
-        System.out.println("Code Promo : "+ promo);
         Order order = Order.builder()
                 .client(client)
                 .promoCode(promo)

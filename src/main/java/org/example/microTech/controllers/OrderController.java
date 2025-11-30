@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import org.example.microTech.dto.*;
 import org.example.microTech.entities.User;
 import org.example.microTech.enums.UserRole;
+import org.example.microTech.exceptions.ForbiddenException;
+import org.example.microTech.exceptions.UnauthorizedException;
 import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.services.OrderService;
 import org.springframework.data.domain.Page;
@@ -26,13 +28,9 @@ public class OrderController {
     @PostMapping
     public ResponseEntity<ApiResponse> createOrder(@Valid @RequestBody OrderRequestDTO dto, HttpSession session){
         User user = (User) session.getAttribute("user");
-        if (user == null ) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        System.out.println("role : "+user.getRole());
-        if (!user.getRole().equals(UserRole.ADMIN)) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403 Forbidden for non-admin
-        }
+        if (user == null) throw new UnauthorizedException("You must login");
+        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         OrderResponseDTO orderResponseDTO = orderService.createOrder(dto);
         ApiResponse response = ApiResponse.builder().message("Order created successfully")
                 .data(orderResponseDTO)
@@ -41,7 +39,10 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/confirm")
-    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable long id){
+    public ResponseEntity<ApiResponse> confirmOrder(@PathVariable long id,HttpSession session){
+        User user = (User) session.getAttribute("user");
+        if (user == null) throw new UnauthorizedException("You must login");
+        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
         orderService.confirmOrder(id);
         ApiResponse response = ApiResponse.builder()
                 .status(HttpStatus.OK.value())
@@ -51,7 +52,10 @@ public class OrderController {
     }
 
     @PatchMapping("/{id}/cancel")
-    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable long id){
+    public ResponseEntity<ApiResponse> cancelOrder(@PathVariable long id, HttpSession session){
+        User user = (User) session.getAttribute("user");
+        if (user == null) throw new UnauthorizedException("You must login");
+        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
         orderService.cancelOrder(id);
         ApiResponse response = ApiResponse.builder()
                 .status(HttpStatus.OK.value())
@@ -63,8 +67,12 @@ public class OrderController {
     @GetMapping
     public Page<OrderHistoryDTO> getOrders(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            HttpSession session
     ) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) throw new UnauthorizedException("You must login");
+        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
         return orderService.getOrders(page, size);
     }
 
