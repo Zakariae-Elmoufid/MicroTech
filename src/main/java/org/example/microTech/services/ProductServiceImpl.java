@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.microTech.dto.ProductDeleteResponseDTO;
 import org.example.microTech.dto.ProductRequestDTO;
 import org.example.microTech.dto.ProductResponseDTO;
+import org.example.microTech.entities.OrderItem;
 import org.example.microTech.entities.Product;
 import org.example.microTech.enums.OrderStatus;
 import org.example.microTech.exceptions.BusinessException;
@@ -98,6 +99,19 @@ public class ProductServiceImpl implements ProductService {
             return new ProductDeleteResponseDTO(product.getName(), "HARD_DELETED");
 
         }
+    }
+    public void  backProductInStock(List<OrderItem> items){
+        for (OrderItem item : items) {
+            Product product = productRepository.findById(item.getProduct().getId())
+                    .orElseThrow(() ->
+                            new ResourceNotFoundException("Product " + item.getProduct().getId() + " not found")
+                    );
+
+            product.setStock(product.getStock() + item.getQuantity());
+
+            productRepository.save(product);
+        }
+
     }
 
 
