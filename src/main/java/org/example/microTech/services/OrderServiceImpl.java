@@ -234,7 +234,10 @@ public class OrderServiceImpl implements OrderService{
         if(order.getOrderStatus() != OrderStatus.PENDING) {
             throw new BusinessException("Order " + id + " is not pending \n satatus :" +order.getOrderStatus() );
         }
+
+        productService.backProductInStock(order.getOrderItems());
         order.setOrderStatus(OrderStatus.CANCELLED);
+
         orderRepository.save(order);
     }
 

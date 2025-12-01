@@ -3,6 +3,7 @@ package org.example.microTech.services;
 import org.example.microTech.dto.ProductDeleteResponseDTO;
 import org.example.microTech.dto.ProductRequestDTO;
 import org.example.microTech.dto.ProductResponseDTO;
+import org.example.microTech.entities.OrderItem;
 import org.example.microTech.entities.Product;
 
 import java.util.List;
@@ -15,5 +16,6 @@ public interface ProductService {
     public List<ProductResponseDTO> getAllProducts();
     public Map<Long, Product> getProductsByIds(List<Long> productIds);
     public ProductDeleteResponseDTO deleteProduct(long id);
+    public void  backProductInStock(List<OrderItem> items);
 
 }
