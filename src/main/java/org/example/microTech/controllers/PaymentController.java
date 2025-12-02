@@ -4,6 +4,7 @@ package org.example.microTech.controllers;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.example.microTech.annotations.Secured;
 import org.example.microTech.dto.ApiResponse;
 import org.example.microTech.dto.PaymentRequestDTO;
 import org.example.microTech.dto.PaymentResponseDTO;
@@ -26,15 +27,15 @@ public class PaymentController {
 
     private final PaymentService paymentService;
 
+
+    @Secured(roles = UserRole.ADMIN)
     @PostMapping("/order/{orderId}")
     public ResponseEntity<ApiResponse> createPayment(
             @PathVariable Long orderId,
             @Valid @RequestBody PaymentRequestDTO dto,
             HttpSession session
     ){
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         PaymentResponseDTO payment = paymentService.createPayment(orderId, dto);
         ApiResponse response = ApiResponse.builder().message("Payment pass successfuly")
                 .data(payment)
@@ -44,30 +45,28 @@ public class PaymentController {
 
     }
 
+    @Secured(roles = {UserRole.ADMIN, UserRole.CLIENT})
     @GetMapping("/{id}")
     public PaymentResponseDTO getPaymentById(@PathVariable Long id,HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         return paymentService.getPaymentById(id);
     }
 
+    @Secured(roles = {UserRole.ADMIN , UserRole.CLIENT})
     @GetMapping("/order/{orderId}")
     public List<PaymentResponseDTO> getPaymentsByOrder(@PathVariable Long orderId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
+
         return paymentService.getPaymentsByOrderId(orderId);
     }
 
+    @Secured(roles = UserRole.ADMIN)
     @GetMapping
     public Page<PaymentResponseDTO> getAllPayments(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             HttpSession session
     ) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         return paymentService.getAllPayments(page, size);
     }
 

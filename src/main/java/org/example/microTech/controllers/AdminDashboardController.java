@@ -3,6 +3,7 @@ package org.example.microTech.controllers;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.example.microTech.annotations.Secured;
 import org.example.microTech.dto.AdminDashboardStatsDTO;
 import org.example.microTech.entities.User;
 import org.example.microTech.enums.UserRole;
@@ -20,12 +21,11 @@ public class AdminDashboardController {
 
     private final AdminDashboardService dashboardService;
 
+    @Secured(roles = UserRole.ADMIN)
     @GetMapping
     public AdminDashboardStatsDTO getStats(HttpSession session)
     {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         return dashboardService.getDashboardStats();
     }
 }

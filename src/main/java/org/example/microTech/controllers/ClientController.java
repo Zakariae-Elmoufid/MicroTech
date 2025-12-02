@@ -4,6 +4,7 @@ package org.example.microTech.controllers;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.example.microTech.annotations.Secured;
 import org.example.microTech.dto.*;
 
 import org.example.microTech.entities.User;
@@ -25,11 +26,10 @@ public class ClientController {
     private final ClientService clientService;
 
 
+    @Secured(roles = UserRole.ADMIN)
     @PostMapping
     public ResponseEntity<ApiResponse> createClient(@Valid @RequestBody ClientCreateDTO dto, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         ClientResponseDTO clientResponseDTO = clientService.createClient(dto);
         ApiResponse response =  ApiResponse.builder().message("Client created successfully!")
                 .data(clientResponseDTO)
@@ -37,7 +37,7 @@ public class ClientController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
 
     }
-
+    @Secured(roles = UserRole.ADMIN)
     @GetMapping
     public ResponseEntity<ApiResponse> getAllClients(HttpSession session) {
         User user = (User) session.getAttribute("user");
@@ -51,10 +51,10 @@ public class ClientController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Secured(roles = {UserRole.ADMIN, UserRole.CLIENT})
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getById(@PathVariable Long id, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
+
         ClientResponseDTO client = clientService.getClientById(id);
         ApiResponse response = ApiResponse.builder()
                 .message("Successfully retrieved client")
@@ -64,11 +64,10 @@ public class ClientController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Secured(roles = UserRole.ADMIN)
     @PutMapping("/{id}")
     public  ResponseEntity<ApiResponse>update(@PathVariable Long id, @RequestBody @Valid ClientUpdateDTO dto, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         ClientResponseDTO client = clientService.updateClient(id, dto);
         ApiResponse response = ApiResponse.builder()
                 .message("Successfully updated clinet")
@@ -78,11 +77,11 @@ public class ClientController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+    @Secured(roles = UserRole.ADMIN)
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse> deleteClient(@PathVariable Long id,HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         ClientResponseDTO client = clientService.deleteClient(id);
         ApiResponse response = ApiResponse.builder()
                 .message("Supplier deleted successfully!")

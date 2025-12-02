@@ -1,6 +1,7 @@
 package org.example.microTech.controllers;
 
 import jakarta.servlet.http.HttpSession;
+import org.example.microTech.annotations.Secured;
 import org.example.microTech.dto.ClientOrderStatsDTO;
 import org.example.microTech.entities.User;
 import org.example.microTech.enums.UserRole;
@@ -21,10 +22,10 @@ public class ClientOrderController {
     @Autowired
     private ClientOrderService clientOrderService;
 
+    @Secured(roles = UserRole.CLIENT)
     @GetMapping("/{clientId}/orders/stats")
     public ResponseEntity<ClientOrderStatsDTO> getClientStats(@PathVariable Long clientId, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
+
         return ResponseEntity.ok(clientOrderService.getClientStats(clientId));
     }
 }

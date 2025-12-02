@@ -4,6 +4,7 @@ package org.example.microTech.controllers;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.example.microTech.annotations.Secured;
 import org.example.microTech.dto.*;
 import org.example.microTech.entities.User;
 import org.example.microTech.enums.UserRole;
@@ -26,11 +27,10 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @Secured(roles = UserRole.ADMIN)
     @PostMapping
     public ResponseEntity<ApiResponse> createProduct(@Valid @RequestBody ProductRequestDTO dto, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         ProductResponseDTO product = productService.createProduct(dto);
 
         ApiResponse response =  ApiResponse.builder().message("Product created successfully!")
@@ -40,11 +40,9 @@ public class ProductController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @Secured(roles = UserRole.ADMIN)
     @GetMapping
     public ResponseEntity<ApiResponse> getAllProducts(HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
         List<ProductResponseDTO> products = productService.getAllProducts();
         ApiResponse response =  ApiResponse.builder().message("All products")
                 .data(products)
@@ -52,7 +50,7 @@ public class ProductController {
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
+    @Secured(roles ={ UserRole.ADMIN,  UserRole.CLIENT})
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long id) {
         ProductResponseDTO product = productService.getProductById(id);
@@ -66,13 +64,10 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Secured(roles = UserRole.ADMIN)
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductRequestDTO dto, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
         ProductResponseDTO product = productService.updateProduct(id, dto);
-
         ApiResponse response = ApiResponse.builder()
                 .message("Product update ")
                 .data(product)
@@ -82,11 +77,9 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @Secured(roles = UserRole.ADMIN)
     @DeleteMapping("/{id}")
         public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long id,HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
         ProductDeleteResponseDTO client = productService.deleteProduct(id);
         ApiResponse response = ApiResponse.builder()
                 .message("Supplier deleted successfully!")
