@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.example.microTech.annotations.Secured;
 import org.example.microTech.dto.ApiResponse;
 import org.example.microTech.dto.PromoCodeRequestDTO;
 import org.example.microTech.dto.PromoCodeResponseDTO;
@@ -30,11 +31,10 @@ public class PromoCodeController {
     private final PromoCodeService promoCodeService;
 
 
+    @Secured(roles = UserRole.ADMIN)
     @PostMapping
     ResponseEntity<ApiResponse> createPromoCode(@RequestBody @Valid PromoCodeRequestDTO request, HttpSession session) {
-        User user = (User) session.getAttribute("user");
-        if (user == null) throw new UnauthorizedException("You must login");
-        if (!user.getRole().equals(UserRole.ADMIN)) throw new ForbiddenException("Access denied");
+
         PromoCodeResponseDTO codePromo = promoCodeService.createPromo( request);
         ApiResponse response = ApiResponse.builder()
                 .data(codePromo)
