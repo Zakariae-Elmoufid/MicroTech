@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.microTech.dto.ProductDeleteResponseDTO;
 import org.example.microTech.dto.ProductRequestDTO;
 import org.example.microTech.dto.ProductResponseDTO;
+import org.example.microTech.entities.Client;
+import org.example.microTech.entities.Order;
 import org.example.microTech.entities.OrderItem;
 import org.example.microTech.entities.Product;
 import org.example.microTech.enums.OrderStatus;
@@ -13,7 +15,9 @@ import org.example.microTech.exceptions.BusinessException;
 import org.example.microTech.exceptions.ResourceNotFoundException;
 import org.example.microTech.mappers.ClientMapper;
 import org.example.microTech.mappers.ProductMapper;
+import org.example.microTech.repositories.ClientRepository;
 import org.example.microTech.repositories.OrderItemsRepository;
+import org.example.microTech.repositories.OrderRepository;
 import org.example.microTech.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -30,6 +36,8 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final OrderItemsRepository orderItemRepository;
+    private final ClientRepository clientRepository;
+    private final OrderRepository orderRepository;
 
     private final ProductMapper mapper;
 
@@ -83,6 +91,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
+
+
+
+
     public ProductDeleteResponseDTO deleteProduct(long id) {
         long pendingOrders = orderItemRepository.countPendingOrdersByProductId(id);
         System.out.println("pendingOrders: " + pendingOrders);
@@ -111,6 +123,23 @@ public class ProductServiceImpl implements ProductService {
 
             productRepository.save(product);
         }
+
+    }
+
+
+
+    public List<ProductResponseDTO> getProductAchterParClient(long clientId){
+//        Client clinet = clientRepository.findById(clientId).orElseThrow(
+//                () -> new ResourceNotFoundException("client not found")
+//        );
+
+        List<Order> orders = orderRepository.findAllByClient(clientId);
+
+        return  orders.stream().filter(o-> o.getOrderStatus() == OrderStatus.CONFIRMED)
+                .flatMap(o -> o.getOrderItems().stream())
+                .map(OrderItem::getProduct)
+                .map(mapper::toDTO)
+                .toList();
 
     }
 

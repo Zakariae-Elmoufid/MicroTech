@@ -23,7 +23,7 @@ public class AdminDashboardController {
 
     @Secured(roles = UserRole.ADMIN)
     @GetMapping
-    public AdminDashboardStatsDTO getStats(HttpSession session)
+    public AdminDashboardStatsDTO getStats()
     {
 
         return dashboardService.getDashboardStats();

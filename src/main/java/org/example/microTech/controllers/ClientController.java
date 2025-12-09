@@ -28,7 +28,7 @@ public class ClientController {
 
     @Secured(roles = UserRole.ADMIN)
     @PostMapping
-    public ResponseEntity<ApiResponse> createClient(@Valid @RequestBody ClientCreateDTO dto, HttpSession session) {
+    public ResponseEntity<ApiResponse> createClient(@Valid @RequestBody ClientCreateDTO dto) {
 
         ClientResponseDTO clientResponseDTO = clientService.createClient(dto);
         ApiResponse response =  ApiResponse.builder().message("Client created successfully!")
@@ -53,7 +53,7 @@ public class ClientController {
 
     @Secured(roles = {UserRole.ADMIN, UserRole.CLIENT})
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse> getById(@PathVariable Long id, HttpSession session) {
+    public ResponseEntity<ApiResponse> getById(@PathVariable Long id) {
 
         ClientResponseDTO client = clientService.getClientById(id);
         ApiResponse response = ApiResponse.builder()
@@ -66,7 +66,7 @@ public class ClientController {
 
     @Secured(roles = UserRole.ADMIN)
     @PutMapping("/{id}")
-    public  ResponseEntity<ApiResponse>update(@PathVariable Long id, @RequestBody @Valid ClientUpdateDTO dto, HttpSession session) {
+    public  ResponseEntity<ApiResponse>update(@PathVariable Long id, @RequestBody @Valid ClientUpdateDTO dto) {
 
         ClientResponseDTO client = clientService.updateClient(id, dto);
         ApiResponse response = ApiResponse.builder()
@@ -80,11 +80,11 @@ public class ClientController {
 
     @Secured(roles = UserRole.ADMIN)
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse> deleteClient(@PathVariable Long id,HttpSession session) {
+    public ResponseEntity<ApiResponse> deleteClient(@PathVariable Long id) {
 
         ClientResponseDTO client = clientService.deleteClient(id);
         ApiResponse response = ApiResponse.builder()
-                .message("Supplier deleted successfully!")
+                .message("client deleted successfully!")
                 .data(client)
                 .status(HttpStatus.OK.value())
                 .build();

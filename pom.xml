@@ -6,7 +6,7 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>4.0.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
     <groupId>org.example</groupId>
     <artifactId>MicroTech</artifactId>
@@ -59,6 +59,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -70,6 +71,7 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
+
 
         <!-- Database -->
         <dependency>
@@ -87,12 +89,15 @@
             <scope>provided</scope>
         </dependency>
 
+
         <!-- MapStruct -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.5.5.Final</version>
         </dependency>
+
+
 
         <!-- Lombok MapStruct Binding -->
         <dependency>
@@ -102,11 +107,7 @@
             <scope>provided</scope>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.security</groupId>-->
-<!--            <artifactId>spring-security-crypto</artifactId>-->
-<!--            <version>6.2.0</version>-->
-<!--        </dependency>-->
+
 
 
 
@@ -121,9 +122,15 @@
 
 
 
+
+
+
+
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.0.0</version>
+
         </dependency>
 
     </dependencies>
@@ -132,7 +139,6 @@
 
     <build>
         <plugins>
-            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -161,21 +167,15 @@
             </plugin>
 
 
-
-
-
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <excludes>
-                        <exclude>**/*ApplicationTests.java</exclude>
-                    </excludes>
+                    <useModulePath>false</useModulePath>
                 </configuration>
             </plugin>
+
 
             <!-- Spring Boot Plugin -->
             <plugin>

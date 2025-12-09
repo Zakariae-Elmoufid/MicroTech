@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Pattern;
 
 import java.math.BigDecimal;
 import java.util.List;
-
 public record OrderRequestDTO
         (
                 long clientId,

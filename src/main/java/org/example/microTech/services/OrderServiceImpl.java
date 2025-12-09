@@ -75,7 +75,6 @@ public class OrderServiceImpl implements OrderService{
 
         BigDecimal subTotal =orderItems.stream().map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
-        System.out.println("subTotal: " + subTotal);
         order.setSubTotal(subTotal);
 
 
@@ -167,6 +166,8 @@ public class OrderServiceImpl implements OrderService{
     }
 
 
+   
+
     public OrderResponseDTO  getOrderById(long id){
         Order order=  orderRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("the order "+ id + " not found")
@@ -231,7 +232,7 @@ public class OrderServiceImpl implements OrderService{
         );
 
         if(order.getOrderStatus() != OrderStatus.PENDING) {
-            throw new BusinessException("Order " + id + " is not pending \n satatus :" +order.getOrderStatus() );
+            throw new BusinessException("Order " + id + " is not pending \n status :" +order.getOrderStatus() );
         }
 
         productService.backProductInStock(order.getOrderItems());

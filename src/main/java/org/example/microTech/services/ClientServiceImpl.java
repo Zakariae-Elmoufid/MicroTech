@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ClientServiceImpl implements ClientService {
+public class  ClientServiceImpl implements ClientService {
 
     @Autowired
     private ClientRepository clientRepository;

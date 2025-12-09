@@ -54,7 +54,6 @@ class OrderServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // 1. Set up common Mock Entities/DTOs
         mockClient = Client.builder().id(1L).loyaltyLevel(null).build();
         mockProduct = Product.builder().id(101L).name("Laptop").stock(5).unitPrice(new BigDecimal("1000.00")).build();
 
@@ -64,25 +63,25 @@ class OrderServiceImplTest {
                 OrderStatus.PENDING,
                 LocalDateTime.now(),
                 new BigDecimal("2000.00"),
-                BigDecimal.ZERO, // discount
-                new BigDecimal("400.00"), // tvaAmount
-                new BigDecimal("2000.00"), // totalHT
-                new BigDecimal("2400.00"), // total
-                new BigDecimal("2400.00"), // remainingAmount
-                Collections.emptyList() // orderItem
+                BigDecimal.ZERO,
+                new BigDecimal("400.00"),
+                new BigDecimal("2000.00"),
+                new BigDecimal("2400.00"),
+                new BigDecimal("2400.00"),
+                Collections.emptyList()
         );
-        itemRequest = new OrderItemRequestDTO(101L, 2); // 2 units of product 101
+        itemRequest = new OrderItemRequestDTO(101L, 2);
 
         validOrderRequest = new OrderRequestDTO(
-                1L, // clientId
-                "SUMMER20", // promoCode
-                new BigDecimal("0.20"), // tva
+                1L,
+                "SUMMER20",
+                new BigDecimal("0.20"),
                 List.of(itemRequest)
         );
 
         when(clientRepository.findById(1L)).thenReturn(Optional.of(mockClient));
         when(productService.getProductsByIds(anyList())).thenReturn(Map.of(101L, mockProduct));
-        when(promoCodeService.validatePromoForClient(anyLong(), anyString())).thenReturn(null); // Assuming null promo for simplicity
+        when(promoCodeService.validatePromoForClient(anyLong(), anyString())).thenReturn(null);
         when(discountService.calculateTotalDiscountRate(any(Client.class), any(BigDecimal.class), any())).thenReturn(BigDecimal.ZERO);
         when(orderMapper.toDto(any(Order.class))).thenReturn(mockOrderResponse);
         when(orderRepository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0)); // Return the saved order
@@ -106,7 +105,6 @@ class OrderServiceImplTest {
 
     @Test
     void createOrder_shouldThrowBusinessException_WhenStockInsufficient() {
-        // Arrange: Make requested quantity greater than stock
         OrderItemRequestDTO insufficientItemRequest = new OrderItemRequestDTO(101L, 6); // Stock is 5
         OrderRequestDTO insufficientStockRequest = new OrderRequestDTO(
                 1L,  "SUMMER20", new BigDecimal("0.20") ,List.of(insufficientItemRequest)

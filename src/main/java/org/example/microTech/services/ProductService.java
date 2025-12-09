@@ -17,5 +17,6 @@ public interface ProductService {
     public Map<Long, Product> getProductsByIds(List<Long> productIds);
     public ProductDeleteResponseDTO deleteProduct(long id);
     public void  backProductInStock(List<OrderItem> items);
+    public List<ProductResponseDTO> getProductAchterParClient(long clientId);
 
 }

@@ -51,7 +51,7 @@ public interface OrderRepository  extends JpaRepository<Order,Long> {
     @Query("SELECT COUNT(o) FROM Order o WHERE o.orderStatus = 'PENDING'")
     long countPendingOrders();
 
-    @Query("SELECT COUNT(o) FROM Order o WHERE o.orderStatus = 'CANCELED'")
+    @Query("SELECT COUNT(o) FROM Order o WHERE o.orderStatus = 'CANCELLED'")
     long countCanceledOrders();
 
     @Query("SELECT COUNT(o) FROM Order o WHERE o.orderStatus = 'REJECTED'")
