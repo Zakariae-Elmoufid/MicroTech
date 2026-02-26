@@ -1,4 +1,4 @@
-# MicroTech - E-commerce Microservices API
+# MicroTech - E-commerce  
 
 Une application microservices robuste pour la gestion d'une plateforme e-commerce, construite avec **Spring Boot 4.0** et **Java 17**.
 
